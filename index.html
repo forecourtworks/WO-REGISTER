@@ -314,6 +314,35 @@
     .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
+
+    /* Controlled document */
+    .controlled-banner {
+      background: #7f1d1d;
+      color: #fecaca;
+      text-align: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+    }
+    .controlled-banner span { opacity: 0.9; font-weight: 500; letter-spacing: 0.02em; text-transform: none; margin-left: 8px; }
+    .auth-modal .form-group { margin-bottom: 12px; }
+    .auth-modal label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+    .auth-modal input {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px;
+      font-size: 0.85rem; font-family: inherit;
+    }
+    .auth-modal input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 2px rgba(13,38,77,0.12); }
+    .auth-error { color: var(--danger); font-size: 0.78rem; margin-top: 6px; display: none; }
+    .auth-error.show { display: block; }
+    .audit-list { max-height: 320px; overflow-y: auto; font-size: 0.75rem; }
+    .audit-list table { width: 100%; border-collapse: collapse; }
+    .audit-list th { background: var(--navy); color: white; padding: 6px 8px; text-align: left; font-size: 0.65rem; }
+    .audit-list td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; }
+    .audit-list tr:nth-child(even) { background: #f8fafc; }
+    .modal.wide { max-width: 640px; }
+
     /* Responsive */
     @media (max-width: 900px) {
       .app-header { padding: 10px 12px; }
@@ -323,10 +352,11 @@
   </style>
 </head>
 <body>
+  <div class="controlled-banner">CONTROLLED DOCUMENT <span>— Data changes require Document Control Admin authorisation</span></div>
   <header class="app-header">
     <div class="header-left">
       <h1>Work Order Register</h1>
-      <div class="tagline">Forecourt Works Ltd · Engineering Reliability Into Every Forecourt</div>
+      <div class="tagline">Forecourt Works Ltd · Controlled Document · Engineering Reliability Into Every Forecourt</div>
     </div>
     <img src="forecourt-logo-mark.png" alt="FSW Logo" class="header-logo" onerror="this.style.display='none'" />
     <div class="header-actions">
@@ -335,6 +365,7 @@
       <button class="btn btn-navy" id="btn-clear" title="Clear filters & show last 5">Reset</button>
       <button class="btn btn-navy" id="btn-export" title="Export current view to PDF">Export PDF</button>
       <button class="btn btn-navy" id="btn-save" title="Force save to local storage">Save</button>
+      <button class="btn btn-navy" id="btn-audit" title="View change authorisation log">Audit Trail</button>
     </div>
   </header>
 
@@ -411,6 +442,40 @@
       <div class="modal-actions">
         <button class="btn btn-outline" id="modal-cancel">Cancel</button>
         <button class="btn btn-danger" id="modal-ok">Delete</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Admin authorisation modal -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal auth-modal">
+      <h3 id="auth-title">Admin Authorisation Required</h3>
+      <p id="auth-msg">Enter Document Control Admin credentials to proceed.</p>
+      <div class="form-group">
+        <label>Admin Name</label>
+        <input type="text" id="auth-name" placeholder="Oguta or Kamando" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="off" />
+      </div>
+      <div class="auth-error" id="auth-error">Invalid admin name or password.</div>
+      <div class="modal-actions" style="margin-top:14px">
+        <button class="btn btn-outline" id="auth-cancel">Cancel</button>
+        <button class="btn btn-primary" id="auth-ok">Authorise</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit trail modal -->
+  <div class="modal-overlay" id="audit-modal">
+    <div class="modal wide">
+      <h3>Change Authorisation Log</h3>
+      <p>Record of every add, edit and deletion with authorising admin, date and time.</p>
+      <div class="audit-list" id="audit-list"></div>
+      <div class="modal-actions" style="margin-top:14px">
+        <button class="btn btn-outline" id="audit-close">Close</button>
       </div>
     </div>
   </div>

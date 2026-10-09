@@ -1,5 +1,7 @@
 # Forecourt Works Ltd — Work Order Register
 
+**CONTROLLED DOCUMENT**
+
 **Tagline:** *Engineering Reliability Into Every Forecourt*
 
 Standalone digital register for all technical service work orders.
@@ -8,40 +10,66 @@ Standalone digital register for all technical service work orders.
 | File | Purpose |
 |------|---------|
 | `index.html` | Application UI and styles |
-| `app.js` | Application logic, data store, query, PDF export |
+| `app.js` | Application logic, admin auth, audit trail, PDF export |
 | `forecourt-logo-mark.png` | Official FSW logo used in header & PDF export |
 
 ## How to run
 1. Open `index.html` in Chrome, Edge, or any modern browser.
 2. No server or install required — works offline after first load of fonts/CDN.
-3. Data is stored in the browser’s **localStorage** (key: `fsw_wo_register_v1`).
+3. Data is stored in the browser’s **localStorage** (keys: `fsw_wo_register_v1`, `fsw_wo_register_audit_v1`).
+
+## Document control
+This is a **controlled document**. Any of the following actions require Document Control Admin authorisation:
+
+- **+ ADD** (create a new work order)
+- **Edit** any field on an existing work order
+- **Delete** a work order
+
+### Document Control Admins
+| Admin | Role |
+|-------|------|
+| **Oguta** | Document Control Admin 1 |
+| **Kamando** | Document Control Admin 2 |
+
+When prompted, enter the admin **name** and **password**. Passwords are verified against SHA-256 hashes stored in the app (plain-text passwords are not stored).
+
+### Audit trail
+Every authorised ADD, EDIT and DELETE is logged with:
+- Action type
+- Work order number
+- Admin name who authorised the change
+- Date and time
+- Field-level detail (for edits)
+
+Open **Audit Trail** in the header to view the log.
 
 ## Features
 - **Default view** — last 5 work orders only
-- **+ ADD** — creates the next sequential work order number automatically
-- **Editable grid** — every field can be changed (Type, dates, Status, Client, Location, Job Title, Zoho, eTIMS, amounts)
-- **Auto Balance** — calculated from Inv Amt − Paid
+- **+ ADD** — next sequential WO number (requires admin auth)
+- **Editable grid** — all fields editable after admin auth
+- **Auto Balance** — Inv Amt − Paid
 - **Status dropdown** — Completed · Ongoing · Pending · Started · Stopped · Cancelled
-- **Query** — filter by Client Name, Work Order No, Date range, Status
-- **Reset** — clears filters and returns to last-5 view
-- **Export PDF** — landscape A4, all 14 columns, official logo, double navy boundary, colour-coded status
-- **Delete** — per-row delete with confirmation
-- **Auto-save** — changes persist across page reloads
+- **Query** — Client Name, Work Order No, Date range, Status
+- **Reset** — clear filters, return to last-5 view
+- **Export PDF** — landscape A4, CONTROLLED DOCUMENT stamp, official logo
+- **Delete** — confirmation + admin auth
+- **Auto-save** — changes persist across reloads
 
 ## Historical data
 Work orders **0001–0068** from the original register are pre-loaded.  
-The next **+ ADD** will create **0069**.
+The next authorised **+ ADD** will create **0069**.
 
 ## PDF export style
 Matches Forecourt Works Ltd document guidelines:
 - Double navy boundary
 - Company header left + official logo top-right
+- **CONTROLLED DOCUMENT** stamp
 - Landscape A4 so all columns fit
 - Status colour coding
 
-## Future
-Designed for later connection to a shared backend / GitHub repository.  
-Currently fully local.
+## Security note
+Admin credentials provide operational document control suitable for staff use.  
+Because the app runs in the browser, this is not cryptographic protection against a determined user inspecting the source. A shared backend (planned via GitHub) will provide stronger controls later.
 
 ---
 Forecourt Works Limited · Ramco Court, GT 3B, South C, Nairobi  
