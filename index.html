@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d264d" />
+  <meta name="description" content="Forecourt Works Ltd – Work Order Register" />
+  <title>Forecourt Works Ltd | Work Order Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #0d264d;
+      --navy-light: #1a3a6b;
+      --accent: #d9730d;
+      --accent-hover: #b85f0a;
+      --success: #166534;
+      --warning: #c2410c;
+      --danger: #b91c1c;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --border: #cbd5e1;
+      --text: #1e293b;
+      --muted: #64748b;
+      --radius: 8px;
+      --shadow: 0 2px 10px rgba(13, 38, 77, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+      min-height: 100vh;
+      font-size: 13px;
+    }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: white;
+      padding: 12px 20px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .header-left h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .header-left .tagline {
+      font-size: 0.68rem;
+      opacity: 0.85;
+      margin-top: 1px;
+    }
+    .header-logo {
+      height: 28px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-navy {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-navy:hover { background: rgba(255,255,255,0.25); }
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    .btn-outline {
+      background: white;
+      color: var(--navy);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--navy); background: #f8fafc; }
+    .btn-sm { padding: 4px 10px; font-size: 0.72rem; }
+    .btn-danger { background: var(--danger); color: white; }
+
+    /* Toolbar / Query bar */
+    .toolbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      position: sticky;
+      top: 58px;
+      z-index: 90;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .toolbar .field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .toolbar label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .toolbar input, .toolbar select {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      min-width: 120px;
+      background: white;
+    }
+    .toolbar input:focus, .toolbar select:focus {
+      outline: none;
+      border-color: var(--navy);
+      box-shadow: 0 0 0 2px rgba(13,38,77,0.12);
+    }
+    .toolbar .spacer { flex: 1; }
+    .view-info {
+      font-size: 0.75rem;
+      color: var(--muted);
+      align-self: center;
+    }
+
+    /* Main table area */
+    .container {
+      padding: 12px 12px 40px;
+      overflow-x: auto;
+    }
+    .table-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      min-width: 1100px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+    }
+    thead {
+      background: var(--navy);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    th {
+      padding: 8px 6px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+    th:last-child { border-right: none; }
+    td {
+      padding: 4px 4px;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    td:last-child { border-right: none; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:hover { background: #eef2ff; }
+    tbody tr.editing { background: #fff7ed; }
+
+    /* Editable cells */
+    .cell-input, .cell-select {
+      width: 100%;
+      padding: 3px 4px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      font-size: 0.72rem;
+      font-family: inherit;
+      background: transparent;
+      color: var(--text);
+      min-width: 0;
+    }
+    .cell-input:focus, .cell-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 2px rgba(217,115,13,0.15);
+    }
+    .cell-input.wo-num {
+      font-weight: 700;
+      color: var(--navy);
+      width: 48px;
+      text-align: center;
+    }
+    .cell-select.status {
+      font-weight: 600;
+      min-width: 90px;
+    }
+    .status-Completed { color: var(--success); }
+    .status-Ongoing { color: var(--warning); }
+    .status-Pending { color: var(--muted); }
+    .status-Started { color: #0369a1; }
+    .status-Stopped { color: #9a3412; }
+    .status-Cancelled { color: var(--danger); }
+
+    .amt {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .row-actions {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      opacity: 0.6;
+    }
+    .icon-btn:hover { opacity: 1; background: #e2e8f0; }
+    .icon-btn.delete:hover { background: #fee2e2; color: var(--danger); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+    .empty-state p { margin-top: 8px; font-size: 0.85rem; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Modal for query help / confirm */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.45);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    }
+    .modal h3 { font-size: 1rem; margin-bottom: 10px; color: var(--navy); }
+    .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .app-header { padding: 10px 12px; }
+      .toolbar { top: 52px; padding: 8px 10px; }
+      .container { padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-left">
+      <h1>Work Order Register</h1>
+      <div class="tagline">Forecourt Works Ltd · Engineering Reliability Into Every Forecourt</div>
+    </div>
+    <img src="forecourt-logo-mark.png" alt="FSW Logo" class="header-logo" onerror="this.style.display='none'" />
+    <div class="header-actions">
+      <button class="btn btn-primary" id="btn-add" title="Add next work order">+ ADD</button>
+      <button class="btn btn-navy" id="btn-query" title="Apply filters">Query</button>
+      <button class="btn btn-navy" id="btn-clear" title="Clear filters & show last 5">Reset</button>
+      <button class="btn btn-navy" id="btn-export" title="Export current view to PDF">Export PDF</button>
+      <button class="btn btn-navy" id="btn-save" title="Force save to local storage">Save</button>
+    </div>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <div class="field">
+      <label>Client Name</label>
+      <input type="text" id="q-client" placeholder="e.g. TAHMEED" />
+    </div>
+    <div class="field">
+      <label>Work Order No</label>
+      <input type="text" id="q-wo" placeholder="e.g. 0065" />
+    </div>
+    <div class="field">
+      <label>Date From</label>
+      <input type="text" id="q-from" placeholder="DD.MM.YYYY" />
+    </div>
+    <div class="field">
+      <label>Date To</label>
+      <input type="text" id="q-to" placeholder="DD.MM.YYYY" />
+    </div>
+    <div class="field">
+      <label>Status</label>
+      <select id="q-status">
+        <option value="">All</option>
+        <option>Completed</option>
+        <option>Ongoing</option>
+        <option>Pending</option>
+        <option>Started</option>
+        <option>Stopped</option>
+        <option>Cancelled</option>
+      </select>
+    </div>
+    <div class="spacer"></div>
+    <div class="view-info" id="view-info">Showing last 5 of 0</div>
+  </div>
+
+  <div class="container">
+    <div class="table-wrap">
+      <table id="wo-table">
+        <thead>
+          <tr>
+            <th style="width:48px">WO</th>
+            <th style="width:90px">Type</th>
+            <th style="width:78px">Entry</th>
+            <th style="width:78px">Start</th>
+            <th style="width:78px">End</th>
+            <th style="width:95px">Status</th>
+            <th style="width:110px">Client</th>
+            <th style="width:95px">Location</th>
+            <th>Job Title</th>
+            <th style="width:58px">Zoho</th>
+            <th style="width:58px">eTIMS</th>
+            <th style="width:72px" class="amt">Inv Amt</th>
+            <th style="width:68px" class="amt">Paid</th>
+            <th style="width:68px" class="amt">Bal</th>
+            <th style="width:48px"></th>
+          </tr>
+        </thead>
+        <tbody id="wo-tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none">
+        <strong>No work orders match the current filters</strong>
+        <p>Clear filters or add a new work order.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal">
+      <h3 id="modal-title">Confirm</h3>
+      <p id="modal-msg"></p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="modal-cancel">Cancel</button>
+        <button class="btn btn-danger" id="modal-ok">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
